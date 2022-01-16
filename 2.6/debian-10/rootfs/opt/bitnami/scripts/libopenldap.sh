@@ -419,6 +419,19 @@ ldap_add_custom_ldifs() {
     if is_boolean_yes $BITNAMI_DEBUG; then
         debug="-v"
     fi
+    files=`find "$LDAP_CUSTOM_LDIF_DIR" -maxdepth 1 \( -type f -o -type l \) -iname '*.ldif' -print | sort`
+    for f in $files; do
+        if is_boolean_yes $BITNAMI_DEBUG; then
+            echo "Loading $f ..."
+        fi
+        if is_boolean_yes $LDAP_CONFIG_ADMIN_ENABLED; then
+            if [[ "$f" == *.config.ldif ]]; then
+                debug_execute ldapadd $debug -f "$f" -H 'ldapi:///' -D "$LDAP_CONFIG_ADMIN_DN" -w "$LDAP_CONFIG_ADMIN_PASSWORD"
+                continue
+            fi
+        fi
+        debug_execute ldapadd $debug -f "$f" -H 'ldapi:///' -D "$LDAP_CONFIG_ADMIN_DN" -w "$LDAP_CONFIG_ADMIN_PASSWORD"
+    done
     if is_boolean_yes $LDAP_CONFIG_ADMIN_ENABLED; then
         find "$LDAP_CUSTOM_LDIF_DIR" -maxdepth 1 \( -type f -o -type l \) -iname '*.config.ldif' -print0 | sort -z | xargs --null -I{} bash -c ". /opt/bitnami/scripts/libos.sh && debug_execute ldapadd $debug -f {} -H 'ldapi:///' -D \"$LDAP_CONFIG_ADMIN_DN\" -w \"$LDAP_CONFIG_ADMIN_PASSWORD\""
     fi
