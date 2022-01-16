@@ -416,7 +416,7 @@ ldap_add_custom_ldifs() {
     info "Loading custom LDIF files..."
     warn "Ignoring LDAP_USERS, LDAP_PASSWORDS, LDAP_USER_DC and LDAP_GROUP environment variables..."
     debug=""
-    if is_boolean_yes $BITNAMI_DEBUG then
+    if is_boolean_yes $BITNAMI_DEBUG; then
         debug="-v"
     fi
     if is_boolean_yes $LDAP_CONFIG_ADMIN_ENABLED; then
